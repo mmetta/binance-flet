@@ -1,6 +1,7 @@
 import flet
-from flet import AppBar, Theme, ThemeMode, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment
+from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment
 from settings import read_themes, write_themes
+from binanceapi import data_objs
 from vw_settings import view_settings
 from vw_wallet import view_wallet
 from vw_buy_sell import view_buy_sell
@@ -15,6 +16,9 @@ def main(page: Page):
     else:
         tema = ThemeMode.DARK
     page.theme_mode = tema
+    rows = []
+    card_list = Row()
+    btn_update = IconButton(icons.UPDATE, disabled=False, on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
 
     def toggle_theme(e):
         if page.theme_mode == ThemeMode.DARK:
@@ -35,6 +39,46 @@ def main(page: Page):
         obj = {"tema": str(page.theme_mode), "cor": str(page.theme.color_scheme_seed)}
         write_themes(obj)
         
+    def data_binance(e):
+        btn_update.disabled = True
+        btn_update.bgcolor = colors.GREY_200
+        page.update()
+        objs = data_objs()
+        pop_cards(objs)
+        
+    def pop_cards(objs):
+        nonlocal rows
+        rows = []
+        for obj in objs:
+            perc = Text(f"{obj["perc"]}%", weight=FontWeight.BOLD)
+            if float(obj["perc"]) > 0:
+                perc.color = "green"
+            else:
+                perc.color = "red"
+            card=Card(
+            content=Container(
+                content=Column(
+                    [
+                        Row([Text(str(obj["symbol"]), weight=FontWeight.BOLD)]),
+                        Row([Text("Abertura "), Text(str(obj["open"]))]),
+                        Row([Text("Máxima "), Text(str(obj["hi"]))]),
+                        Row([Text("Mínima "), Text(str(obj["low"]))]),
+                        Row([Text("Amplitude "), Text(str(obj["amplitude"]))]),
+                        Row([Text("Atual "), Text(str(obj["bid"]), weight=FontWeight.BOLD)]),
+                        Row([Text("Variação "), perc]),
+                    ]
+                ),
+                width=250,
+                padding=padding.symmetric(vertical=10, horizontal=46),
+                )
+            )
+            rows.append(card)
+        nonlocal card_list
+        card_list = Row(controls=rows, wrap=True)
+        btn_update.disabled = False
+        btn_update.bgcolor = colors.PRIMARY
+        page.update()
+
     ico_menu = PopupMenuButton(
         items=[
             PopupMenuItem(text="TEMAS"),
@@ -56,8 +100,9 @@ def main(page: Page):
                     AppBar(title=Text("Binance Flet app", color=colors.PRIMARY, weight=FontWeight.BOLD),
                         actions=[
                             IconButton(icons.WALLET_OUTLINED, on_click=open_wallet, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
-                            IconButton(icons.PRICE_CHANGE_OUTLINED, on_click=open_buy_sell, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
+                            IconButton(icons.CHECKLIST, on_click=open_buy_sell, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
                             IconButton(icons.SETTINGS_OUTLINED, on_click=open_settings, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=40),
+                            btn_update, Container(width=40),
                             ico_menu, Container(width=20),
                         ], bgcolor=colors.PRIMARY_CONTAINER),
                     Container(
@@ -66,8 +111,8 @@ def main(page: Page):
                             padding=padding.only(bottom=0),
                             alignment=alignment.center,
                         ),
-                ],
-                horizontal_alignment=CrossAxisAlignment.CENTER
+                    card_list,
+                ], horizontal_alignment=CrossAxisAlignment.CENTER
             )
         )
         
@@ -90,6 +135,7 @@ def main(page: Page):
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
+    data_binance(None)
 
     def open_wallet(e):
         page.go("/wallet")
