@@ -17,7 +17,7 @@ def read_themes():
         return []
 
 
-def write_themas(temas):
+def write_themes(temas):
     json_path = os.path.normpath(os.path.join(path, 'themes.json'))
     try:
         with open(json_path, 'w', encoding='utf8') as f:
