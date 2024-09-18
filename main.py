@@ -1,7 +1,7 @@
 import flet
 from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment
 from settings import read_themes, write_themes
-from binanceapi import data_objs
+from binanceapi import data_objs, read_obj_list
 from vw_settings import view_settings
 from vw_wallet import view_wallet
 from vw_buy_sell import view_buy_sell
@@ -16,7 +16,6 @@ def main(page: Page):
     else:
         tema = ThemeMode.DARK
     page.theme_mode = tema
-    rows = []
     card_list = Row()
     btn_update = IconButton(icons.UPDATE, disabled=False, on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
 
@@ -43,11 +42,12 @@ def main(page: Page):
         btn_update.disabled = True
         btn_update.bgcolor = colors.GREY_200
         page.update()
-        objs = data_objs()
-        pop_cards(objs)
+        data_objs()
+        pop_cards(None) 
         
-    def pop_cards(objs):
-        nonlocal rows
+    def pop_cards(e):
+        objs = read_obj_list()
+        # nonlocal rows
         rows = []
         for obj in objs:
             perc = Text(f"{obj["perc"]}%", weight=FontWeight.BOLD)
@@ -74,7 +74,8 @@ def main(page: Page):
             )
             rows.append(card)
         nonlocal card_list
-        card_list = Row(controls=rows, wrap=True)
+        card_list.controls = rows
+        card_list.wrap = True
         btn_update.disabled = False
         btn_update.bgcolor = colors.PRIMARY
         page.update()
@@ -93,6 +94,7 @@ def main(page: Page):
     
     def route_change(e):
         page.views.clear()
+        pop_cards(None)
         page.views.append(
             View(
                 "/",
