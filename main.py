@@ -1,15 +1,25 @@
 import flet
-from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment
+from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment, MainAxisAlignment
 from settings import read_themes, write_themes
+from resolucao import get_screen_resolution
 from binanceapi import data_objs, read_obj_list
 from vw_settings import view_settings
 from vw_wallet import view_wallet
 from vw_buy_sell import view_buy_sell
 
 def main(page: Page):
-    page.title = "Binance Flet"
-    page.window.width = 740
+    resolution = get_screen_resolution()
     conf = read_themes()
+    w = resolution[0] / 2
+    if conf["align_win"] == "center":
+        align_left = (resolution[0] - w) / 2
+    if conf["align_win"] == "right":
+        align_left = w
+    if conf["align_win"] == "left":
+        align_left = 0
+    page.title = "Binance Flet"
+    page.window.width = w
+    page.window.left = int(align_left)
     page.theme = Theme(color_scheme_seed=conf["cor"])
     if conf["tema"] == "ThemeMode.LIGHT":
         tema = ThemeMode.LIGHT
@@ -17,7 +27,8 @@ def main(page: Page):
         tema = ThemeMode.DARK
     page.theme_mode = tema
     card_list = Row()
-    btn_update = IconButton(icons.UPDATE, disabled=False, on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
+    btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
+    fav_icon = Icon(icons.STAR_BORDER_OUTLINED)
 
     def toggle_theme(e):
         if page.theme_mode == ThemeMode.DARK:
@@ -50,21 +61,24 @@ def main(page: Page):
         # nonlocal rows
         rows = []
         for obj in objs:
+            atual = Text(str(obj["bid"]), weight=FontWeight.BOLD)
             perc = Text(f"{obj["perc"]}%", weight=FontWeight.BOLD)
             if float(obj["perc"]) > 0:
+                atual.color = "green"
                 perc.color = "green"
             else:
+                atual.color = "red"
                 perc.color = "red"
             card=Card(
             content=Container(
                 content=Column(
                     [
-                        Row([Text(str(obj["symbol"]), weight=FontWeight.BOLD)]),
+                        Row([Text(str(obj["symbol"]), weight=FontWeight.BOLD, color=colors.PRIMARY)]),
                         Row([Text("Abertura "), Text(str(obj["open"]))]),
                         Row([Text("Máxima "), Text(str(obj["hi"]))]),
                         Row([Text("Mínima "), Text(str(obj["low"]))]),
                         Row([Text("Amplitude "), Text(str(obj["amplitude"]))]),
-                        Row([Text("Atual "), Text(str(obj["bid"]), weight=FontWeight.BOLD)]),
+                        Row([Text("Atual "), atual]),
                         Row([Text("Variação "), perc]),
                     ]
                 ),
@@ -101,14 +115,17 @@ def main(page: Page):
                 [
                     AppBar(title=Text("Binance Flet app", color=colors.PRIMARY, weight=FontWeight.BOLD),
                         actions=[
-                            IconButton(icons.WALLET_OUTLINED, on_click=open_wallet, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
-                            IconButton(icons.CHECKLIST, on_click=open_buy_sell, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
-                            IconButton(icons.SETTINGS_OUTLINED, on_click=open_settings, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=40),
+                            IconButton(icons.WALLET_OUTLINED, tooltip="Carteira", on_click=open_wallet, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
+                            IconButton(icons.CHECKLIST, tooltip="Compra e Venda", on_click=open_buy_sell, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
+                            IconButton(icons.SETTINGS_OUTLINED, tooltip="Config", on_click=open_settings, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=40),
                             btn_update, Container(width=40),
                             ico_menu, Container(width=20),
                         ], bgcolor=colors.PRIMARY_CONTAINER),
                     Container(
-                            content=Text("Home", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY),
+                            content=Row([
+                                fav_icon,
+                                Text("Favoritos", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)
+                            ], alignment=MainAxisAlignment.CENTER),
                             width=440,
                             padding=padding.only(bottom=0),
                             alignment=alignment.center,

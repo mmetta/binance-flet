@@ -1,10 +1,10 @@
-from flet import Page, View, AppBar, Container, Column, Row, Text, IconButton, icons, FontWeight, colors, padding, alignment, CrossAxisAlignment, MainAxisAlignment
+from flet import Page, View, AppBar, Container, Column, Row, Text, IconButton, Icon, icons, FontWeight, colors, padding, alignment, CrossAxisAlignment, MainAxisAlignment
 from binanceapi import data_objs, read_obj_list, read_wallet, read_dolar_now
 
 
 def view_wallet(page: Page):
     
-    btn_update = IconButton(icons.UPDATE, disabled=False, on_click=lambda e: update_data(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
+    btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: update_data(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
     cont = Container(content=Text("Aguarde..."))
     total = Text("", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)
     
@@ -19,8 +19,6 @@ def view_wallet(page: Page):
             rows = []
             for par in pars:
                 if par["symbol"] == asset["symbol"]:
-                    item0 = Row([Text(str(f"{asset["symbol"]}"), size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)], wrap=True)
-                    item1 = Row([Text(str(f"Quant: {asset["quant"]}"))], wrap=True)
                     subtotal = float(par["bid"]) * float(asset["quant"])
                     TBR += subtotal
                     perc = ((subtotal / float(asset["invest"])) -1) * 100
@@ -28,6 +26,10 @@ def view_wallet(page: Page):
                     rend.color = "green" if perc > 0 else "red"
                     medio = float(asset["invest"]) / float(asset["quant"])
                     target = float(asset["ATH"]) * float(asset["quant"])
+                    target_perc = ((target / float(asset["invest"]))-1) * 100
+                    
+                    item0 = Row([Text(str(f"{asset["symbol"]}"), size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)], wrap=True)
+                    item1 = Row([Text(str(f"Quant: {asset["quant"]}"))], wrap=True)
                     item2 = Row([Text(str(f"Valor atual: R$ {float(par["bid"]):.2f}"))], wrap=True)
                     item3 = Row([Text(str(f"Total atual: R$ {float(subtotal):.2f}"))], wrap=True)
                     item4 = Row([Text(str(f"Valor médio: R$ {float(medio):.3f}"))], wrap=True)
@@ -35,7 +37,8 @@ def view_wallet(page: Page):
                     item6 = Row([Text("Rendimento: "), rend], wrap=True)
                     item7 = Row([Text(str(f"Máxima histórica: R$ {float(asset["ATH"]):.2f}"))], wrap=True)
                     item8 = Row([Text(str(f"Data: {asset["date"]}"))], wrap=True)
-                    item9 = Row([Text(str(f"Possibilidade: R$ {float(target):.2f}"))], wrap=True)
+                    item9 = Row([Text(str(f"Meta: R$ {float(target):.2f} ({float(target_perc):.2f}%)"))], wrap=True)
+                    
                     rows.append(item0)
                     rows.append(item1)
                     rows.append(item2)
@@ -66,14 +69,14 @@ def view_wallet(page: Page):
         View(
             "/settings",
                     [
-                        AppBar(title=Text("Carteira"), bgcolor=colors.PRIMARY_CONTAINER,
+                        AppBar(title=Text("Carteira"), center_title=True, bgcolor=colors.PRIMARY_CONTAINER,
                                actions=[
                                    btn_update, Container(width=20)
                                ]
                                ),
                         Container(
                             content=Row([
-                               Text("Carteira atual: ", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY),
+                               Text("Total geral: ", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY),
                                total 
                             ], width=440, alignment=MainAxisAlignment.CENTER),
                             padding=padding.only(bottom=0),

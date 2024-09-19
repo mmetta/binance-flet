@@ -111,6 +111,7 @@ def consulta():
     link = 'https://api2.binance.com/api/v3/ticker/24hr'
     try:
         req = requests.get(link)
+        # tempo_resposta = req.elapsed.total_seconds()
         res = req.json()
         return res
     except Exception as e:
