@@ -8,11 +8,12 @@ app_path = os.path.abspath(os.getcwd())
 path = os.path.join(app_path, './')
 
 
-def write_dolar_now(usdt):
+def write_dolar_now(usdt, perc):
     json_path = os.path.normpath(os.path.join(path, 'dolar_now.txt'))
+    linha = f"{float(usdt):.3} {float(perc):.2}%"
     try:
         with open(json_path, 'w', encoding='utf8') as f:
-            f.write(usdt)
+            f.write(linha)
         return 'Dolar salvo com sucesso!!'
     except Exception as e:
         return e
@@ -23,7 +24,7 @@ def read_dolar_now():
         dolar_path = os.path.normpath(os.path.join(path, 'dolar_now.txt'))
         with open(dolar_path, "r") as arquivo:
             usdt = arquivo.read()
-            return float(usdt)
+            return usdt
     except Exception as e:
         print(e)
         return 0
@@ -102,7 +103,7 @@ def data_objs():
                 }
                 objs.append(obj)
             if par["symbol"] == "USDTBRL":
-                write_dolar_now(par["bidPrice"])
+                write_dolar_now(par["bidPrice"], par["priceChangePercent"])
     write_obj_list(objs)
     return objs
 

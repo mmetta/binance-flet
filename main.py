@@ -2,7 +2,7 @@ import flet
 from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment, MainAxisAlignment
 from settings import read_themes, write_themes
 from resolucao import get_screen_resolution
-from binanceapi import data_objs, read_obj_list
+from binanceapi import data_objs, read_obj_list, read_dolar_now
 from vw_settings import view_settings
 from vw_wallet import view_wallet
 from vw_buy_sell import view_buy_sell
@@ -29,6 +29,9 @@ def main(page: Page):
     card_list = Row()
     btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
     fav_icon = Icon(icons.STAR_BORDER_OUTLINED)
+    dolar_icon = Icon(icons.ATTACH_MONEY_OUTLINED)
+    txt_usdt = Text("", weight=FontWeight.BOLD, color=colors.PRIMARY)
+    
 
     def toggle_theme(e):
         if page.theme_mode == ThemeMode.DARK:
@@ -92,6 +95,8 @@ def main(page: Page):
         card_list.wrap = True
         btn_update.disabled = False
         btn_update.bgcolor = colors.PRIMARY
+        usdt = read_dolar_now()
+        txt_usdt.value = f"USDT: {usdt}"
         page.update()
 
     ico_menu = PopupMenuButton(
@@ -124,7 +129,9 @@ def main(page: Page):
                     Container(
                             content=Row([
                                 fav_icon,
-                                Text("Favoritos", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)
+                                Text("Favoritos", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY),
+                                dolar_icon,
+                                txt_usdt
                             ], alignment=MainAxisAlignment.CENTER),
                             width=440,
                             padding=padding.only(bottom=0),

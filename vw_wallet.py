@@ -1,5 +1,5 @@
 from flet import Page, View, AppBar, Container, Column, Row, Text, IconButton, Icon, icons, FontWeight, colors, padding, alignment, CrossAxisAlignment, MainAxisAlignment
-from binanceapi import data_objs, read_obj_list, read_wallet, read_dolar_now
+from binanceapi import data_objs, read_obj_list, read_wallet
 
 
 def view_wallet(page: Page):
