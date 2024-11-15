@@ -22,7 +22,7 @@ def view_wallet(page: Page):
                     subtotal = float(par["bid"]) * float(asset["quant"])
                     TBR += subtotal
                     perc = ((subtotal / float(asset["invest"])) -1) * 100
-                    rend = Text(f"{float(perc):.2f}", weight=FontWeight.BOLD)
+                    rend = Text(f"{float(perc):.2f}%", weight=FontWeight.BOLD)
                     rend.color = "green" if perc > 0 else "red"
                     medio = float(asset["invest"]) / float(asset["quant"])
                     target = float(asset["ATH"]) * float(asset["quant"])
@@ -31,7 +31,7 @@ def view_wallet(page: Page):
                     item0 = Row([Text(str(f"{asset["symbol"]}"), size=16, weight=FontWeight.BOLD, color=colors.PRIMARY)], wrap=True)
                     item1 = Row([Text(str(f"Quant: {asset["quant"]}"))], wrap=True)
                     item2 = Row([Text(str(f"Valor atual: R$ {float(par["bid"]):.2f}"))], wrap=True)
-                    item3 = Row([Text(str(f"Total atual: R$ {float(subtotal):.2f}"))], wrap=True)
+                    item3 = Row([Text(str(f"Total atual: R$ {float(subtotal):.2f}"), weight=FontWeight.BOLD)], wrap=True)
                     item4 = Row([Text(str(f"Valor médio: R$ {float(medio):.3f}"))], wrap=True)
                     item5 = Row([Text(str(f"Investimento: R$ {float(asset["invest"]):.2f}"))], wrap=True)
                     item6 = Row([Text("Rendimento: "), rend], wrap=True)
@@ -83,6 +83,8 @@ def view_wallet(page: Page):
                             alignment=alignment.center,
                         ),
                         cont,
-                    ], horizontal_alignment=CrossAxisAlignment.CENTER
+                    ],
+                    horizontal_alignment=CrossAxisAlignment.CENTER,
+                    scroll=True
                 )
             )

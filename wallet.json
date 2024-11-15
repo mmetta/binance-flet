@@ -1,16 +1,23 @@
 [
-    {
-        "symbol": "ADABRL",
-        "quant": 150,
-        "invest": 303.17,
-        "ATH": 16.952,
-        "date": "2021-09-02"
-    },
-    {
-        "symbol": "BNBBRL",
-        "quant": 0.0061,
-        "invest": 18.05,
-        "ATH": 3942.079,
-        "date": "2021-06-06"
-    }
+  {
+    "symbol": "ADABRL",
+    "quant": 150,
+    "invest": 303.17,
+    "ATH": 16.952,
+    "date": "2021-09-02"
+  },
+  {
+    "symbol": "BTCBRL",
+    "quant": 0.001,
+    "invest": 500,
+    "ATH": 500000,
+    "date": "2021-09-01"
+  },
+  {
+    "symbol": "BNBBRL",
+    "quant": 0.0061,
+    "invest": 18.05,
+    "ATH": 3942.079,
+    "date": "2021-06-06"
+  }
 ]

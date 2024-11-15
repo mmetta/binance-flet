@@ -138,7 +138,9 @@ def main(page: Page):
                             alignment=alignment.center,
                         ),
                     card_list,
-                ], horizontal_alignment=CrossAxisAlignment.CENTER
+                ],
+                horizontal_alignment=CrossAxisAlignment.CENTER,
+                scroll=True
             )
         )
         
