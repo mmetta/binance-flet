@@ -1,4 +1,5 @@
 import flet
+import threading
 from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment, MainAxisAlignment
 from settings import read_themes, write_themes
 from resolucao import get_screen_resolution
@@ -27,12 +28,39 @@ def main(page: Page):
         tema = ThemeMode.DARK
     page.theme_mode = tema
     card_list = Row()
-    btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: data_binance(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
+    btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: toogle_temporizador(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
     fav_icon = Icon(icons.STAR_BORDER_OUTLINED)
     dolar_icon = Icon(icons.ATTACH_MONEY_OUTLINED)
     txt_usdt = Text("", weight=FontWeight.BOLD, color=colors.PRIMARY)
     
+    # Variável global para controlar o temporizador
+    temporizador_ativo = False
+    temporizador = None
+    
+    def iniciar_temporizador():
+        nonlocal temporizador_ativo, temporizador
+        temporizador_ativo = True
+        btn_update.bgcolor = colors.GREEN_400
+        if temporizador is None:
+            temporizador = threading.Timer(10, temporizador_executar)
+            temporizador.start()
+    
+    def pausar_temporizador():
+        nonlocal temporizador_ativo, temporizador
+        temporizador_ativo = False
+        if temporizador is not None:
+            temporizador.cancel()
+            temporizador = None
 
+    def temporizador_executar():
+        nonlocal temporizador_ativo, temporizador
+        if temporizador_ativo:
+            data_binance(True)
+            temporizador = threading.Timer(10, temporizador_executar)
+            temporizador.start()
+
+    iniciar_temporizador()
+    
     def toggle_theme(e):
         if page.theme_mode == ThemeMode.DARK:
             page.theme_mode = ThemeMode.LIGHT
@@ -51,6 +79,16 @@ def main(page: Page):
     def save_themes():
         obj = {"tema": str(page.theme_mode), "cor": str(page.theme.color_scheme_seed)}
         write_themes(obj)
+        
+    def toogle_temporizador(e):
+        nonlocal temporizador
+        if temporizador is not None:
+            pausar_temporizador()
+            btn_update.bgcolor = colors.GREY_200
+        else:
+            iniciar_temporizador()
+            btn_update.bgcolor = colors.PRIMARY
+        page.update()
         
     def data_binance(e):
         btn_update.disabled = True
