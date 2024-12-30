@@ -1,5 +1,5 @@
 import requests
-from settings import read_pars
+from settings import read_pars, read_history
 import json
 import os
 
@@ -17,7 +17,7 @@ def write_dolar_now(usdt, perc):
         return 'Dolar salvo com sucesso!!'
     except Exception as e:
         return e
-    
+
 
 def read_dolar_now():
     try:
@@ -25,6 +25,27 @@ def read_dolar_now():
         with open(dolar_path, "r") as arquivo:
             usdt = arquivo.read()
             return usdt
+    except Exception as e:
+        print(e)
+        return 0
+
+
+def write_cache(brl):
+    json_path = os.path.normpath(os.path.join(path, 'cache.txt'))
+    try:
+        with open(json_path, 'w', encoding='utf8') as f:
+            f.write(brl)
+        return 'BRL salvo com sucesso!!'
+    except Exception as e:
+        return e
+
+
+def read_cache():
+    try:
+        dolar_path = os.path.normpath(os.path.join(path, 'cache.txt'))
+        with open(dolar_path, "r") as arquivo:
+            cache = arquivo.read()
+            return cache
     except Exception as e:
         print(e)
         return 0
@@ -38,7 +59,7 @@ def write_obj_list(objs):
         return 'Objetos salvos com sucesso!!'
     except Exception as e:
         return e
-    
+
 
 def read_obj_list():
     try:
@@ -58,6 +79,35 @@ def read_wallet():
     except Exception as e:
         print(e)
         return []
+
+
+def update_wallet(obj):
+    wallet = read_wallet()
+    lista = []
+    for item in wallet:
+        if item['symbol'] == obj['symbol']:
+            lista.append(obj)
+        else:
+            lista.append(item)
+    json_path = os.path.normpath(os.path.join(path, 'wallet.json'))
+    try:
+        with open(json_path, 'w', encoding='utf8') as f:
+            json.dump(lista, f)
+        return 'Objetos salvos com sucesso!!'
+    except Exception as e:
+        return e
+
+
+def update_history(obj):
+    history = read_history()
+    history.append(obj)
+    json_path = os.path.normpath(os.path.join(path, 'history.json'))
+    try:
+        with open(json_path, 'w', encoding='utf8') as f:
+            json.dump(history, f)
+        return 'Objetos salvos com sucesso!!'
+    except Exception as e:
+        return e
 
 
 # def data_objs():
@@ -129,8 +179,8 @@ def consulta_par(par):
     except Exception as e:
         print(e)
         return {}
-    
-    
+
+
 def consulta_dolar():
     link = "https://api2.binance.com/api/v3/ticker/price?symbol=USDTBRL"
     try:

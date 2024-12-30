@@ -1,6 +1,6 @@
 import flet
 import threading
-from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, icons, Page, Text, View, colors, FontWeight, CrossAxisAlignment, MainAxisAlignment
+from flet import AppBar, Theme, ThemeMode, Card, Column, Icon, Container, PopupMenuButton, PopupMenuItem, padding, alignment, Row, IconButton, Icons, Page, Text, View, Colors, FontWeight, CrossAxisAlignment, MainAxisAlignment
 from settings import read_themes, write_themes
 from resolucao import get_screen_resolution
 from binanceapi import data_objs, read_obj_list, read_dolar_now
@@ -8,19 +8,23 @@ from vw_settings import view_settings
 from vw_wallet import view_wallet
 from vw_buy_sell import view_buy_sell
 
+
 def main(page: Page):
     resolution = get_screen_resolution()
     conf = read_themes()
-    w = resolution[0] / 2
+    w = 1000
+    h = resolution[1]
     if conf["align_win"] == "center":
         align_left = (resolution[0] - w) / 2
     if conf["align_win"] == "right":
-        align_left = w
+        align_left = resolution[0] - w + 10
     if conf["align_win"] == "left":
         align_left = 0
     page.title = "Binance Flet"
     page.window.width = w
+    page.window.height = h
     page.window.left = int(align_left)
+    page.window.top = 0
     page.theme = Theme(color_scheme_seed=conf["cor"])
     if conf["tema"] == "ThemeMode.LIGHT":
         tema = ThemeMode.LIGHT
@@ -28,23 +32,24 @@ def main(page: Page):
         tema = ThemeMode.DARK
     page.theme_mode = tema
     card_list = Row()
-    btn_update = IconButton(icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: toogle_temporizador(e), bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER)
-    fav_icon = Icon(icons.STAR_BORDER_OUTLINED)
-    dolar_icon = Icon(icons.ATTACH_MONEY_OUTLINED)
-    txt_usdt = Text("", weight=FontWeight.BOLD, color=colors.PRIMARY)
-    
+    btn_update = IconButton(Icons.UPDATE, disabled=False, tooltip="Atualizar", on_click=lambda e: toogle_temporizador(
+        e), bgcolor=Colors.PRIMARY, icon_color=Colors.SECONDARY_CONTAINER)
+    fav_icon = Icon(Icons.STAR_BORDER_OUTLINED)
+    dolar_icon = Icon(Icons.ATTACH_MONEY_OUTLINED)
+    txt_usdt = Text("", weight=FontWeight.BOLD, color=Colors.PRIMARY)
+
     # Variável global para controlar o temporizador
     temporizador_ativo = False
     temporizador = None
-    
+
     def iniciar_temporizador():
         nonlocal temporizador_ativo, temporizador
         temporizador_ativo = True
-        btn_update.bgcolor = colors.GREEN_400
+        btn_update.bgcolor = Colors.GREEN_400
         if temporizador is None:
             temporizador = threading.Timer(10, temporizador_executar)
             temporizador.start()
-    
+
     def pausar_temporizador():
         nonlocal temporizador_ativo, temporizador
         temporizador_ativo = False
@@ -60,7 +65,7 @@ def main(page: Page):
             temporizador.start()
 
     iniciar_temporizador()
-    
+
     def toggle_theme(e):
         if page.theme_mode == ThemeMode.DARK:
             page.theme_mode = ThemeMode.LIGHT
@@ -77,26 +82,27 @@ def main(page: Page):
         page.update()
 
     def save_themes():
-        obj = {"tema": str(page.theme_mode), "cor": str(page.theme.color_scheme_seed)}
+        obj = {"tema": str(page.theme_mode), "cor": str(
+            page.theme.color_scheme_seed)}
         write_themes(obj)
-        
+
     def toogle_temporizador(e):
         nonlocal temporizador
         if temporizador is not None:
             pausar_temporizador()
-            btn_update.bgcolor = colors.GREY_200
+            btn_update.bgcolor = Colors.GREY_200
         else:
             iniciar_temporizador()
-            btn_update.bgcolor = colors.PRIMARY
+            btn_update.bgcolor = Colors.PRIMARY
         page.update()
-        
+
     def data_binance(e):
         btn_update.disabled = True
-        btn_update.bgcolor = colors.GREY_200
+        btn_update.bgcolor = Colors.GREY_200
         page.update()
         data_objs()
-        pop_cards(None) 
-        
+        pop_cards(None)
+
     def pop_cards(e):
         objs = read_obj_list()
         # nonlocal rows
@@ -110,21 +116,22 @@ def main(page: Page):
             else:
                 atual.color = "red"
                 perc.color = "red"
-            card=Card(
-            content=Container(
-                content=Column(
-                    [
-                        Row([Text(str(obj["symbol"]), weight=FontWeight.BOLD, color=colors.PRIMARY)]),
-                        Row([Text("Abertura "), Text(str(obj["open"]))]),
-                        Row([Text("Máxima "), Text(str(obj["hi"]))]),
-                        Row([Text("Mínima "), Text(str(obj["low"]))]),
-                        Row([Text("Amplitude "), Text(str(obj["amplitude"]))]),
-                        Row([Text("Atual "), atual]),
-                        Row([Text("Variação "), perc]),
-                    ]
-                ),
-                width=250,
-                padding=padding.symmetric(vertical=10, horizontal=46),
+            card = Card(
+                content=Container(
+                    content=Column(
+                        [
+                            Row([Text(str(obj["symbol"]),
+                                      weight=FontWeight.BOLD, color=Colors.PRIMARY)]),
+                            Row([Text("Abertura "), Text(str(obj["open"]))]),
+                            Row([Text("Máxima "), Text(str(obj["hi"]))]),
+                            Row([Text("Mínima "), Text(str(obj["low"]))]),
+                            Row([Text("Amplitude "), Text(str(obj["amplitude"]))]),
+                            Row([Text("Atual "), atual]),
+                            Row([Text("Variação "), perc]),
+                        ]
+                    ),
+                    width=250,
+                    padding=padding.symmetric(vertical=10, horizontal=46),
                 )
             )
             rows.append(card)
@@ -132,7 +139,7 @@ def main(page: Page):
         card_list.controls = rows
         card_list.wrap = True
         btn_update.disabled = False
-        btn_update.bgcolor = colors.PRIMARY
+        btn_update.bgcolor = Colors.PRIMARY
         usdt = read_dolar_now()
         txt_usdt.value = f"USDT: {usdt}"
         page.update()
@@ -140,57 +147,67 @@ def main(page: Page):
     ico_menu = PopupMenuButton(
         items=[
             PopupMenuItem(text="TEMAS"),
-            PopupMenuItem(icon=icons.CONTRAST_OUTLINED, text="Dark/Light", on_click=toggle_theme),
+            PopupMenuItem(icon=Icons.CONTRAST_OUTLINED,
+                          text="Dark/Light", on_click=toggle_theme),
             PopupMenuItem(),
-            PopupMenuItem(content=Row([Icon(icons.SQUARE, color=colors.BLUE), Text("Azul")]), data="blue", on_click=toggle_color),
-            PopupMenuItem(content=Row([Icon(icons.SQUARE, color=colors.AMBER), Text("Ambar")]), data="amber", on_click=toggle_color),
-            PopupMenuItem(content=Row([Icon(icons.SQUARE, color=colors.PURPLE), Text("Lilás")]), data="purple", on_click=toggle_color),
-            PopupMenuItem(content=Row([Icon(icons.SQUARE, color=colors.PINK), Text("Pink")]), data="pink", on_click=toggle_color),
-            PopupMenuItem(content=Row([Icon(icons.SQUARE, color=colors.GREEN), Text("Verde")]), data="green", on_click=toggle_color),
+            PopupMenuItem(content=Row([Icon(Icons.SQUARE, color=Colors.BLUE), Text(
+                "Azul")]), data="blue", on_click=toggle_color),
+            PopupMenuItem(content=Row([Icon(Icons.SQUARE, color=Colors.AMBER), Text(
+                "Ambar")]), data="amber", on_click=toggle_color),
+            PopupMenuItem(content=Row([Icon(Icons.SQUARE, color=Colors.PURPLE), Text(
+                "Lilás")]), data="purple", on_click=toggle_color),
+            PopupMenuItem(content=Row([Icon(Icons.SQUARE, color=Colors.PINK), Text(
+                "Pink")]), data="pink", on_click=toggle_color),
+            PopupMenuItem(content=Row([Icon(Icons.SQUARE, color=Colors.GREEN), Text(
+                "Verde")]), data="green", on_click=toggle_color),
         ])
-    
+
     def route_change(e):
         page.views.clear()
         pop_cards(None)
         page.views.append(
             View(
                 "/",
-                [
-                    AppBar(title=Text("Binance Flet app", color=colors.PRIMARY, weight=FontWeight.BOLD),
-                        actions=[
-                            IconButton(icons.WALLET_OUTLINED, tooltip="Carteira", on_click=open_wallet, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
-                            IconButton(icons.CHECKLIST, tooltip="Compra e Venda", on_click=open_buy_sell, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=20),
-                            IconButton(icons.SETTINGS_OUTLINED, tooltip="Config", on_click=open_settings, bgcolor=colors.PRIMARY, icon_color=colors.SECONDARY_CONTAINER), Container(width=40),
-                            btn_update, Container(width=40),
-                            ico_menu, Container(width=20),
-                        ], bgcolor=colors.PRIMARY_CONTAINER),
+                controls=[
+                    AppBar(title=Text("Binance Flet app", color=Colors.PRIMARY, weight=FontWeight.BOLD),
+                           actions=[
+                        IconButton(Icons.WALLET_OUTLINED, tooltip="Carteira", on_click=open_wallet,
+                                   bgcolor=Colors.PRIMARY, icon_color=Colors.SECONDARY_CONTAINER), Container(width=20),
+                        IconButton(Icons.CHECKLIST, tooltip="Compra e Venda", on_click=open_buy_sell,
+                                   bgcolor=Colors.PRIMARY, icon_color=Colors.SECONDARY_CONTAINER), Container(width=20),
+                        IconButton(Icons.SETTINGS_OUTLINED, tooltip="Config", on_click=open_settings,
+                                   bgcolor=Colors.PRIMARY, icon_color=Colors.SECONDARY_CONTAINER), Container(width=40),
+                        btn_update, Container(width=40),
+                        ico_menu, Container(width=20),
+                    ], bgcolor=Colors.PRIMARY_CONTAINER),
                     Container(
-                            content=Row([
-                                fav_icon,
-                                Text("Favoritos", size=16, weight=FontWeight.BOLD, color=colors.PRIMARY),
-                                dolar_icon,
-                                txt_usdt
-                            ], alignment=MainAxisAlignment.CENTER),
-                            width=440,
-                            padding=padding.only(bottom=0),
-                            alignment=alignment.center,
-                        ),
+                        content=Row([
+                            fav_icon,
+                            Text("Favoritos", size=16,
+                                 weight=FontWeight.BOLD, color=Colors.PRIMARY),
+                            dolar_icon,
+                            txt_usdt
+                        ], alignment=MainAxisAlignment.CENTER),
+                        width=440,
+                        padding=padding.only(bottom=0),
+                        alignment=alignment.center,
+                    ),
                     card_list,
                 ],
                 horizontal_alignment=CrossAxisAlignment.CENTER,
                 scroll=True
             )
         )
-        
+
         if page.route == "/wallet":
             view_wallet(page)
-        
+
         if page.route == "/buy_sell":
             view_buy_sell(page)
-        
+
         if page.route == "/settings":
             view_settings(page)
-        
+
         page.update()
 
     def view_pop(e):
@@ -213,5 +230,6 @@ def main(page: Page):
         page.go("/settings")
 
     page.go(page.route)
+
 
 flet.app(target=main)

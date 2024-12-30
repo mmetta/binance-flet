@@ -28,6 +28,17 @@ def read_pars():
         return []
 
 
+def read_history():
+    try:
+        json_path = os.path.normpath(os.path.join(path, 'history.json'))
+        with open(json_path, 'r', encoding='utf8') as f:
+            j = json.load(f)
+            return j
+    except Exception as e:
+        print(e)
+        return []
+
+
 def write_themes(temas):
     json_path = os.path.normpath(os.path.join(path, 'themes.json'))
     try:
@@ -40,11 +51,11 @@ def write_themes(temas):
         return 'Temas salvos com sucesso!!'
     except Exception as e:
         return e
-    
-    
+
+
 def write_align(align):
     json_path = os.path.normpath(os.path.join(path, 'themes.json'))
-    
+
     try:
         with open(json_path, 'r', encoding='utf8') as f:
             obj = json.load(f)
@@ -54,7 +65,7 @@ def write_align(align):
         return f'A próxima vez que abrir o App estará na posição ({align})'
     except Exception as e:
         return e
-    
+
 
 def write_pars(temas):
     json_path = os.path.normpath(os.path.join(path, 'pars.json'))
@@ -64,5 +75,3 @@ def write_pars(temas):
         return 'Pares salvos com sucesso!!'
     except Exception as e:
         return e
-    
-
