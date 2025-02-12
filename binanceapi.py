@@ -140,7 +140,8 @@ def data_objs():
     for name in pars:
         for par in data:
             if par["symbol"] == str(name):
-                amplitude = float(par["highPrice"]) / float(par["lowPrice"])
+                amplitude = (
+                    (float(par["highPrice"]) - float(par["lowPrice"])) / float(par["highPrice"])) * 100
                 perc = float(par["priceChangePercent"])
                 obj = {
                     "symbol": par["symbol"],
